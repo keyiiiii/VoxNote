@@ -1,9 +1,8 @@
-# Xcode
+# Xcode (xcodegen で再生成するためコミット不要)
 build/
 DerivedData/
-*.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+*.xcodeproj/
+*.xcworkspace/
 xcuserdata/
 
 # macOS
