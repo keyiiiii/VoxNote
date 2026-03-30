@@ -138,14 +138,18 @@ enum WhisperModel: String, CaseIterable, Identifiable {
     case tiny = "tiny"
     case base = "base"
     case small = "small"
+    case medium = "medium"
+    case largeTurbo = "large-v3-turbo"
 
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
-        case .tiny:  return "Tiny (~75 MB)"
-        case .base:  return "Base (~142 MB) — 推奨"
-        case .small: return "Small (~466 MB) — 高精度"
+        case .tiny:       return "Tiny (~75 MB)"
+        case .base:       return "Base (~142 MB)"
+        case .small:      return "Small (~466 MB) — 推奨"
+        case .medium:     return "Medium (~1.5 GB) — 高精度"
+        case .largeTurbo: return "Large v3 Turbo (~1.6 GB) — 最高精度"
         }
     }
 
@@ -158,9 +162,8 @@ enum WhisperModel: String, CaseIterable, Identifiable {
     /// ダウンロード後に検証する SHA256 チェックサム (nil の場合はスキップ)
     var sha256: String? {
         switch self {
-        case .tiny:  return nil // 未検証
-        case .base:  return "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe"
-        case .small: return nil // 未検証
+        case .base: return "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe"
+        default:    return nil
         }
     }
 }
