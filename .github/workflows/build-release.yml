@@ -41,8 +41,6 @@ jobs:
             -configuration Release \
             -derivedDataPath build/DerivedData \
             CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
             ONLY_ACTIVE_ARCH=NO \
             build
 
@@ -55,8 +53,17 @@ jobs:
             exit 1
           fi
 
-          # Ad-hoc codesign
-          codesign --force --deep --sign - "$APP_PATH"
+          # VoxBridge 方式: 個別バイナリ → フレームワーク → アプリ全体の順で署名
+          echo "Signing individual binaries..."
+          find "$APP_PATH" -type f \( -name "*.dylib" -o -name "*.so" \) | while read f; do
+            codesign --force --sign - "$f" 2>/dev/null || true
+          done
+
+          echo "Signing app bundle..."
+          codesign --force --sign - "$APP_PATH"
+
+          # 署名の検証
+          codesign --verify --verbose "$APP_PATH" 2>&1 || true
 
           # ZIP 用のステージングディレクトリを作成
           STAGE_DIR="dist/staging"

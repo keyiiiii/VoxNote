@@ -55,7 +55,7 @@ targets:
         CODE_SIGN_IDENTITY: "VoxNote Developer"
         CODE_SIGN_STYLE: Manual
         MACOSX_DEPLOYMENT_TARGET: "13.0"
-        ENABLE_HARDENED_RUNTIME: YES
+        ENABLE_HARDENED_RUNTIME: NO
         SWIFT_STRICT_CONCURRENCY: minimal
         SWIFT_OBJC_BRIDGING_HEADER: VoxNote/Vendor/whisper.cpp/BridgingHeader.h
         HEADER_SEARCH_PATHS:
