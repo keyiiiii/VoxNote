@@ -30,8 +30,14 @@ class TranscriptStore: ObservableObject {
 
     private var durationTimer: Timer?
 
-    // 最大チャンクサイズ (10 秒 × 16000 Hz)
-    private let maxChunkFrames: AVAudioFrameCount = 160_000
+    // 最大チャンクサイズ (15 秒 × 48000 Hz)
+    private let maxChunkFrames: AVAudioFrameCount = 720_000
+    // 最小チャンクサイズ (2 秒 × 48000 Hz) — これ未満のセグメントは次の発話と結合する
+    private let minChunkFrames: AVAudioFrameCount = 96_000
+
+    // Whisper 推論の直列化キュー (whisper.cpp はスレッドセーフでない)
+    private var transcriptionQueue: [(buffers: [AVAudioPCMBuffer], entryId: UUID)] = []
+    private var isTranscribing = false
 
     let modelManager = ModelManager.shared
 
@@ -106,7 +112,12 @@ class TranscriptStore: ObservableObject {
         if !currentChunkBuffers.isEmpty, let id = pendingEntryId {
             let buffers = currentChunkBuffers
             currentChunkBuffers = []
-            await transcribeSegment(buffers: buffers, entryId: id)
+            enqueueTranscription(buffers: buffers, entryId: id)
+        }
+
+        // キューが空になるまで待つ
+        while isTranscribing || !transcriptionQueue.isEmpty {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1秒
         }
 
         saveSession()
@@ -120,13 +131,20 @@ class TranscriptStore: ObservableObject {
 
         switch event {
         case .speechStarted:
-            currentChunkBuffers = [buffer]
+            // 短いチャンクがバッファに残っている場合は結合する
+            if currentChunkBuffers.isEmpty {
+                currentChunkBuffers = [buffer]
+            } else {
+                currentChunkBuffers.append(buffer)
+            }
             statusMessage = "音声を検出 — 文字起こし準備中…"
-            // 仮エントリを作成 (話者・テキストは後から設定)
-            let placeholderId = getOrCreateSpeaker(profileId: UUID()).id
-            let entry = TranscriptEntry(speakerId: placeholderId, text: "", isPending: true)
-            pendingEntryId = entry.id
-            session.entries.append(entry)
+            // 仮エントリがなければ作成 (話者・テキストは後から設定)
+            if pendingEntryId == nil {
+                let placeholderId = getOrCreateSpeaker(profileId: UUID()).id
+                let entry = TranscriptEntry(speakerId: placeholderId, text: "", isPending: true)
+                pendingEntryId = entry.id
+                session.entries.append(entry)
+            }
 
         case .speaking:
             currentChunkBuffers.append(buffer)
@@ -137,7 +155,7 @@ class TranscriptStore: ObservableObject {
                 let toSend = currentChunkBuffers
                 currentChunkBuffers = []
                 if let id = pendingEntryId {
-                    Task { await self.transcribeSegment(buffers: toSend, entryId: id) }
+                    enqueueTranscription(buffers: toSend, entryId: id)
                     // 新しいエントリを継続用に作成
                     let contEntry = TranscriptEntry(
                         speakerId: session.entries.last?.speakerId ?? UUID(),
@@ -149,20 +167,40 @@ class TranscriptStore: ObservableObject {
             }
 
         case .speechEnded:
+            // 最低フレーム数未満なら送信せずバッファに保持して次の発話と結合する
+            let totalFrames = currentChunkBuffers.reduce(AVAudioFrameCount(0)) { $0 + $1.frameLength }
+            if totalFrames < minChunkFrames {
+                // バッファを保持したまま、次の speechStarted で結合される
+                break
+            }
             statusMessage = "文字起こし中…"
             let toSend = currentChunkBuffers
             currentChunkBuffers = []
             if !toSend.isEmpty, let id = pendingEntryId {
                 let capturedId = id
                 pendingEntryId = nil
-                Task {
-                    await self.transcribeSegment(buffers: toSend, entryId: capturedId)
-                    self.statusMessage = "録音中 — 音声を待機しています…"
-                }
+                enqueueTranscription(buffers: toSend, entryId: capturedId)
+                statusMessage = "録音中 — 音声を待機しています…"
             }
 
         case .silence:
             break
+        }
+    }
+
+    private func enqueueTranscription(buffers: [AVAudioPCMBuffer], entryId: UUID) {
+        transcriptionQueue.append((buffers: buffers, entryId: entryId))
+        processTranscriptionQueue()
+    }
+
+    private func processTranscriptionQueue() {
+        guard !isTranscribing, let next = transcriptionQueue.first else { return }
+        transcriptionQueue.removeFirst()
+        isTranscribing = true
+        Task {
+            await self.transcribeSegment(buffers: next.buffers, entryId: next.entryId)
+            self.isTranscribing = false
+            self.processTranscriptionQueue()
         }
     }
 

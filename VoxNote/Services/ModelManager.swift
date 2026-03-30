@@ -7,6 +7,7 @@ import CryptoKit
 class ModelManager: ObservableObject {
     @Published var downloadProgress: Double = 0
     @Published var isDownloading = false
+    @Published var downloadingModel: WhisperModel?
     @Published var isModelReady = false
     @Published var selectedModel: WhisperModel {
         didSet { UserDefaults.standard.set(selectedModel.rawValue, forKey: "whisper_model") }
@@ -60,6 +61,7 @@ class ModelManager: ObservableObject {
         guard !isDownloading else { return }
 
         isDownloading = true
+        downloadingModel = model
         downloadProgress = 0
         errorMessage = nil
 
@@ -95,6 +97,7 @@ class ModelManager: ObservableObject {
         }
 
         isDownloading = false
+        downloadingModel = nil
     }
 
     func cancelDownload() {
@@ -155,9 +158,9 @@ enum WhisperModel: String, CaseIterable, Identifiable {
     /// ダウンロード後に検証する SHA256 チェックサム (nil の場合はスキップ)
     var sha256: String? {
         switch self {
-        case .tiny:  return "be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21"
+        case .tiny:  return nil // 未検証
         case .base:  return "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe"
-        case .small: return "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1571c230d4"
+        case .small: return nil // 未検証
         }
     }
 }

@@ -8,7 +8,7 @@ class VoiceActivityDetector {
     // システム音声は直接入力より小さいため低めに設定
     private let speechThreshold: Float = 0.001
     // この時間以上無音が続いたら発話終了とみなす
-    private let silenceTimeout: TimeInterval = 0.5
+    private let silenceTimeout: TimeInterval = 1.5
 
     private var isSpeaking = false
     private var silenceStartTime: Date?

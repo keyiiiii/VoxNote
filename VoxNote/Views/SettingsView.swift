@@ -26,7 +26,7 @@ struct SettingsView: View {
                         model: model,
                         isSelected: modelManager.selectedModel == model,
                         isDownloaded: modelManager.modelFileExists(for: model),
-                        isDownloading: modelManager.isDownloading && modelManager.selectedModel == model,
+                        isDownloading: modelManager.downloadingModel == model,
                         progress: modelManager.downloadProgress,
                         onSelect: { modelManager.selectModel(model) },
                         onDownload: { Task { await modelManager.downloadModel(model) } },

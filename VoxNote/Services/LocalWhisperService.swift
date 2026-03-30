@@ -44,17 +44,20 @@ class LocalWhisperService {
     private func transcribeSamples(_ samples: [Float], language: String? = nil) -> String {
         guard let ctx = ctx else { return "" }
 
-        var params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY)
+        // BEAM_SEARCH で精度を優先 (GREEDY より遅いが正確)
+        var params = whisper_full_default_params(WHISPER_SAMPLING_BEAM_SEARCH)
         params.print_progress = false
         params.print_timestamps = false
         params.print_special = false
         params.translate = false
         params.no_timestamps = true
         params.no_context = true            // 前回の結果を引きずらない
-        params.single_segment = true        // 短い音声は1セグメントで十分
+        params.single_segment = false       // 長いチャンクは複数セグメントで処理
         params.suppress_blank = true        // 空白トークンを抑制
         params.temperature = 0.0            // 決定的な出力 (ハルシネーション抑制)
         params.temperature_inc = 0.0        // 温度を上げない
+        params.greedy.best_of = 5           // 候補を増やして精度向上
+        params.beam_search.beam_size = 5    // ビームサーチ幅
         params.n_threads = Int32(min(ProcessInfo.processInfo.activeProcessorCount, 8))
 
         // 言語設定

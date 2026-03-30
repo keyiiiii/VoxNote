@@ -81,13 +81,12 @@ struct InlineTextEditor: View {
     let onCommit: () -> Void
 
     var body: some View {
-        TextEditor(text: $text)
+        TextField("", text: $text, axis: .vertical)
             .font(.body)
             .focused(isFocused)
-            .scrollContentBackground(.hidden)
-            .padding(.horizontal, -5) // TextEditor のデフォルトパディングを相殺
-            .frame(minHeight: 24, maxHeight: 200)
-            .fixedSize(horizontal: false, vertical: true)
+            .textFieldStyle(.plain)
+            .lineLimit(nil)
+            .padding(4)
             .background(
                 RoundedRectangle(cornerRadius: 4)
                     .fill(isFocused.wrappedValue
@@ -103,7 +102,6 @@ struct InlineTextEditor: View {
             )
             .onChange(of: isFocused.wrappedValue) { focused in
                 if !focused {
-                    // フォーカスが外れたら自動保存
                     onCommit()
                 }
             }
