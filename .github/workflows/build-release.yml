@@ -95,11 +95,4 @@ jobs:
             dist/${{ steps.package.outputs.zip_name }}.sha256
           generate_release_notes: true
           body: |
-            ## インストール方法
-
-            1. `${{ steps.package.outputs.zip_name }}` をダウンロード
-            2. ZIP を展開して `VoxNote.app` を `/Applications` に移動
-            3. 初回起動時に Gatekeeper の警告が出る場合は **システム設定 > プライバシーとセキュリティ > 「このまま開く」** で許可
-            4. システム設定 > プライバシーとセキュリティ > **画面収録** で VoxNote を許可
-
-            > 初回起動時に Whisper モデル (~142 MB) が自動ダウンロードされます。
+            インストール方法は [README](https://github.com/keyiiiii/VoxNote#インストール) を参照してください。
