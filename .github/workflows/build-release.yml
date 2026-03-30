@@ -65,17 +65,10 @@ jobs:
           # 署名の検証
           codesign --verify --verbose "$APP_PATH" 2>&1 || true
 
-          # ZIP 用のステージングディレクトリを作成
-          STAGE_DIR="dist/staging"
-          ZIP_NAME="VoxNote-${{ steps.version.outputs.version }}.zip"
-          mkdir -p "$STAGE_DIR"
-          cp -R "$APP_PATH" "$STAGE_DIR/"
-          cp scripts/install.command "$STAGE_DIR/"
-
           # Create ZIP (preserving symlinks and resource forks)
+          ZIP_NAME="VoxNote-${{ steps.version.outputs.version }}.zip"
           mkdir -p dist
-          cd "$STAGE_DIR" && ditto -c -k --sequesterRsrc . "../../dist/$ZIP_NAME" && cd ../..
-          rm -rf "$STAGE_DIR"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "dist/$ZIP_NAME"
 
           # SHA256 checksum
           shasum -a 256 "dist/$ZIP_NAME" > "dist/$ZIP_NAME.sha256"
@@ -104,16 +97,9 @@ jobs:
           body: |
             ## インストール方法
 
-            ### 簡単インストール（推奨）
             1. `${{ steps.package.outputs.zip_name }}` をダウンロード
-            2. ZIP を展開
-            3. **`install.command` をダブルクリック** → 自動でインストール＆起動
-            4. システム設定 > プライバシーとセキュリティ > 画面収録 で許可
-
-            ### 手動インストール
-            1. ZIP を展開して `VoxNote.app` を `/Applications` に移動
-            2. ターミナルで `xattr -cr /Applications/VoxNote.app` を実行
-            3. VoxNote を起動
-            4. システム設定 > プライバシーとセキュリティ > 画面収録 で許可
+            2. ZIP を展開して `VoxNote.app` を `/Applications` に移動
+            3. 初回起動時に Gatekeeper の警告が出る場合は **システム設定 > プライバシーとセキュリティ > 「このまま開く」** で許可
+            4. システム設定 > プライバシーとセキュリティ > **画面収録** で VoxNote を許可
 
             > 初回起動時に Whisper モデル (~142 MB) が自動ダウンロードされます。
