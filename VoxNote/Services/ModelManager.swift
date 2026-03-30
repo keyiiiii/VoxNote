@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 /// Whisper モデルファイルのダウンロードと管理を行うクラス。
 /// モデルは ~/Library/Application Support/VoxNote/models/ に保存される。
@@ -11,6 +12,7 @@ class ModelManager: ObservableObject {
         didSet { UserDefaults.standard.set(selectedModel.rawValue, forKey: "whisper_model") }
     }
     @Published var errorMessage: String?
+    @Published var statusMessage: String = ""
 
     private var downloadTask: URLSessionDownloadTask?
 
@@ -65,6 +67,18 @@ class ModelManager: ObservableObject {
 
         do {
             let (tempURL, _) = try await downloadWithProgress(from: model.downloadURL, to: destination)
+
+            // SHA256 チェックサム検証
+            if let expectedHash = model.sha256 {
+                statusMessage = "チェックサム検証中…"
+                let data = try Data(contentsOf: tempURL)
+                let hash = SHA256.hash(data: data)
+                let hexHash = hash.map { String(format: "%02x", $0) }.joined()
+                guard hexHash == expectedHash else {
+                    try? FileManager.default.removeItem(at: tempURL)
+                    throw ModelError.checksumMismatch(expected: expectedHash, actual: hexHash)
+                }
+            }
 
             // 一時ファイルを最終パスに移動
             if FileManager.default.fileExists(atPath: destination.path) {
@@ -136,6 +150,26 @@ enum WhisperModel: String, CaseIterable, Identifiable {
 
     var downloadURL: URL {
         URL(string: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-\(rawValue).bin")!
+    }
+
+    /// ダウンロード後に検証する SHA256 チェックサム (nil の場合はスキップ)
+    var sha256: String? {
+        switch self {
+        case .tiny:  return "be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21"
+        case .base:  return "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe"
+        case .small: return "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1571c230d4"
+        }
+    }
+}
+
+enum ModelError: LocalizedError {
+    case checksumMismatch(expected: String, actual: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .checksumMismatch(let expected, let actual):
+            return "モデルファイルの整合性チェックに失敗しました。\n期待: \(expected.prefix(16))…\n実際: \(actual.prefix(16))…\nダウンロードが破損している可能性があります。再試行してください。"
+        }
     }
 }
 
