@@ -41,30 +41,30 @@ struct ContentView: View {
         .sheet(isPresented: $showSettings) {
             SettingsView(modelManager: store.modelManager)
         }
-        .alert("エラー", isPresented: .constant(store.lastError != nil), actions: {
-            if store.isPermissionError {
-                Button("システム設定を開く") {
-                    NSWorkspace.shared.open(
-                        URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
-                    )
-                    store.lastError = nil
+        .alert(
+            store.isPermissionError ? "画面収録の設定" : "エラー",
+            isPresented: .constant(store.lastError != nil),
+            actions: {
+                if store.isPermissionError {
+                    Button("システム設定を開く") {
+                        NSWorkspace.shared.open(
+                            URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
+                        )
+                        store.lastError = nil
+                    }
+                    Button("閉じる", role: .cancel) { store.lastError = nil }
+                } else {
+                    Button("OK") { store.lastError = nil }
                 }
-                Button("アプリを再起動") {
-                    store.lastError = nil
-                    // アプリを再起動
-                    let task = Process()
-                    task.launchPath = "/usr/bin/open"
-                    task.arguments = ["-n", Bundle.main.bundlePath]
-                    task.launch()
-                    NSApp.terminate(nil)
+            },
+            message: {
+                if store.isPermissionError {
+                    Text("Zoom / Slack の音声を録音するには画面収録の許可が必要です。\n\nシステム設定で許可した後、VoxNote を再起動してください。")
+                } else {
+                    Text(store.lastError ?? "")
                 }
-                Button("閉じる", role: .cancel) { store.lastError = nil }
-            } else {
-                Button("OK") { store.lastError = nil }
             }
-        }, message: {
-            Text(store.lastError ?? "")
-        })
+        )
         .keyboardShortcut("d", modifiers: .command)
         .onAppear {
             // ⌘D のグローバルショートカット

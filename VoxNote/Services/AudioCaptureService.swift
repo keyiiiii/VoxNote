@@ -26,15 +26,20 @@ class AudioCaptureService: NSObject {
     }
 
     func startCapture() async throws {
-        // 権限チェック
-        if !Self.hasScreenCapturePermission {
-            Self.requestScreenCapturePermission()
+        // 事前チェックせず、実際にキャプチャを試みる。
+        // CGPreflightScreenCaptureAccess() は署名ハッシュが変わると
+        // ON でも false を返すため信頼できない。
+        let content: SCShareableContent
+        do {
+            content = try await SCShareableContent.excludingDesktopWindows(
+                false, onScreenWindowsOnly: false
+            )
+        } catch {
+            // ScreenCaptureKit へのアクセス失敗 = 権限なし
+            CGRequestScreenCaptureAccess()
             throw AudioCaptureError.permissionDenied
         }
 
-        let content = try await SCShareableContent.excludingDesktopWindows(
-            false, onScreenWindowsOnly: false
-        )
         guard let display = content.displays.first else {
             throw AudioCaptureError.noDisplayAvailable
         }
@@ -96,10 +101,11 @@ enum AudioCaptureError: LocalizedError, Equatable {
             return "キャプチャできるディスプレイが見つかりません"
         case .permissionDenied:
             return "画面収録の権限が必要です。\n\n"
-                + "1. 「システム設定を開く」をクリック\n"
-                + "2. 画面収録で VoxNote を許可\n"
-                + "3. VoxNote を⌘Q で終了して再起動\n\n"
-                + "※ 権限付与後はアプリの再起動が必須です"
+                + "初回の場合:\n"
+                + "  画面収録で VoxNote を許可 → アプリを再起動\n\n"
+                + "許可済みなのに表示される場合:\n"
+                + "  一覧から VoxNote を「−」で削除 → アプリを再起動\n"
+                + "  → 自動で再追加されるので ON にする"
         case .permissionRequiresRestart:
             return "画面収録の権限が更新されました。\n"
                 + "VoxNote を⌘Q で完全に終了してから再度起動してください。"
