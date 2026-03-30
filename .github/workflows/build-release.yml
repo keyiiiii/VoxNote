@@ -1,0 +1,98 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build Release
+        run: |
+          xcodebuild \
+            -project VoxNote.xcodeproj \
+            -scheme VoxNote \
+            -configuration Release \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+
+      - name: Package app
+        id: package
+        run: |
+          APP_PATH=$(find build/DerivedData -name "VoxNote.app" -type d | head -1)
+          if [[ -z "$APP_PATH" ]]; then
+            echo "::error::VoxNote.app not found"
+            exit 1
+          fi
+
+          # Ad-hoc codesign
+          codesign --force --deep --sign - "$APP_PATH"
+
+          # Create ZIP (preserving symlinks and resource forks)
+          ZIP_NAME="VoxNote-${{ steps.version.outputs.version }}.zip"
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "dist/$ZIP_NAME"
+
+          # SHA256 checksum
+          shasum -a 256 "dist/$ZIP_NAME" > "dist/$ZIP_NAME.sha256"
+
+          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+          echo "zip_path=dist/$ZIP_NAME" >> "$GITHUB_OUTPUT"
+
+          echo "Package created: dist/$ZIP_NAME"
+          ls -lh "dist/$ZIP_NAME"
+          cat "dist/$ZIP_NAME.sha256"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoxNote-${{ steps.version.outputs.version }}
+          path: dist/VoxNote-*.zip
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/${{ steps.package.outputs.zip_name }}
+            dist/${{ steps.package.outputs.zip_name }}.sha256
+          generate_release_notes: true
+          body: |
+            ## インストール方法
+
+            1. `${{ steps.package.outputs.zip_name }}` をダウンロード
+            2. ZIP を展開して `VoxNote.app` を `/Applications` に移動
+            3. 初回起動: 右クリック →「開く」→「開く」
+            4. システム設定 > プライバシーとセキュリティ > 画面収録 で許可
+
+            > 初回起動時に Whisper モデル (~142 MB) が自動ダウンロードされます。

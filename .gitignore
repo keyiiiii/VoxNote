@@ -1,0 +1,31 @@
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+xcuserdata/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# Whisper models (large binary files)
+models/*.bin
+
+# Test audio files
+test-audio/
+
+# Claude Code
+.claude/
+
+# Misc
+*.swp
+*.swo
+*~

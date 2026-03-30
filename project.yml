@@ -1,0 +1,78 @@
+name: VoxNote
+options:
+  bundleIdPrefix: com.voxnote
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+
+targets:
+  # whisper.cpp を C/C++ 静的ライブラリとしてビルド
+  whisper:
+    type: library.static
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - path: VoxNote/Vendor/whisper.cpp/ggml/src/ggml.c
+      - path: VoxNote/Vendor/whisper.cpp/ggml/src/ggml-alloc.c
+      - path: VoxNote/Vendor/whisper.cpp/ggml/src/ggml-backend.cpp
+      - path: VoxNote/Vendor/whisper.cpp/ggml/src/ggml-quants.c
+      - path: VoxNote/Vendor/whisper.cpp/ggml/src/ggml-aarch64.c
+      - path: VoxNote/Vendor/whisper.cpp/ggml/src/ggml-metal.m
+      - path: VoxNote/Vendor/whisper.cpp/src/whisper.cpp
+    settings:
+      base:
+        HEADER_SEARCH_PATHS:
+          - $(SRCROOT)/VoxNote/Vendor/whisper.cpp/include
+          - $(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/include
+          - $(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/src
+          - $(SRCROOT)/VoxNote/Vendor/whisper.cpp/src
+        OTHER_CFLAGS: "-O3 -DNDEBUG -DGGML_USE_ACCELERATE -DGGML_USE_METAL -Wno-shorten-64-to-32"
+        OTHER_CPLUSPLUSFLAGS: "-O3 -DNDEBUG -DGGML_USE_ACCELERATE -DGGML_USE_METAL -Wno-shorten-64-to-32 -std=c++17"
+        CLANG_ENABLE_OBJC_ARC: NO
+        GCC_C_LANGUAGE_STANDARD: c11
+        CLANG_CXX_LANGUAGE_STANDARD: c++17
+
+  # メインアプリ
+  VoxNote:
+    type: application
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - path: VoxNote
+        excludes:
+          - "Vendor/**"
+    dependencies:
+      - target: whisper
+      - sdk: Accelerate.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.voxnote.app
+        SWIFT_VERSION: "5.9"
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_IDENTITY: "VoxNote Developer"
+        CODE_SIGN_STYLE: Manual
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        SWIFT_STRICT_CONCURRENCY: minimal
+        SWIFT_OBJC_BRIDGING_HEADER: VoxNote/Vendor/whisper.cpp/BridgingHeader.h
+        HEADER_SEARCH_PATHS:
+          - $(SRCROOT)/VoxNote/Vendor/whisper.cpp/include
+          - $(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/include
+        OTHER_LDFLAGS: "-lc++"
+    entitlements:
+      path: VoxNote/VoxNote.entitlements
+    info:
+      path: VoxNote/Info.plist
+      properties:
+        CFBundleDisplayName: VoxNote
+        CFBundleName: VoxNote
+        CFBundleIconFile: AppIcon
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "13.0"
+        NSScreenCaptureUsageDescription: "MTG の音声を文字起こしするために画面収録を使用します"
+        NSMicrophoneUsageDescription: "音声を録音するためにマイクを使用します"
+        NSPrincipalClass: NSApplication

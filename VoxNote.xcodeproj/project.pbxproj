@@ -1,0 +1,629 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1260E17E1297427910D0F62B /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6730433159D71636A87413F5 /* AudioCaptureService.swift */; };
+		1733C17AD37A3560A6759D42 /* ggml-backend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 72D63B96B2869A59A51BEB51 /* ggml-backend.cpp */; };
+		1A85F671A15FCD7D8295AC24 /* libwhisper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D25FAB0B485B573260EAC226 /* libwhisper.a */; };
+		1CF5A4A64DDB5610E9211AC5 /* UtteranceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33DBE5158BFB3A4C0936E0F1 /* UtteranceRow.swift */; };
+		20EED368F1ABF7CB3A5A57B6 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B2E8C1EADB384583FE5A2D0 /* MetalKit.framework */; };
+		2BBFC4436CB70BB7CE068297 /* SpeakerChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881B5E559119D6FB8008B7F2 /* SpeakerChangeDetector.swift */; };
+		38125CD703A95FC5E8F5756F /* ggml-aarch64.c in Sources */ = {isa = PBXBuildFile; fileRef = E00D78AF14A26FEBA05B7483 /* ggml-aarch64.c */; };
+		397820DA71163991071F1650 /* TranscriptStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551A1221F22539731F6F5B34 /* TranscriptStore.swift */; };
+		39995EFAEB4814FCA06C4CF7 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE4A03AA562F2DD691036AB5 /* Metal.framework */; };
+		399BDE8B19E9E4CB551E012F /* LocalWhisperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B58F9867800F093BE97D3C /* LocalWhisperService.swift */; };
+		3B1DAC55697F6B02F8B633B7 /* ggml-alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = AE26D3D21789BE99E9394E32 /* ggml-alloc.c */; };
+		5440CE99633AC5BB1C8D3DA7 /* ggml-quants.c in Sources */ = {isa = PBXBuildFile; fileRef = DE5E90937BD76A7C5C38DA4C /* ggml-quants.c */; };
+		5A9438B7A021A792B630198E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F285FC83BED4373EA5EFDBB /* SettingsView.swift */; };
+		5CB9FF9A6EB4724764CD2CD9 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6817E98D36A3549B1B88B62 /* Speaker.swift */; };
+		66CBD30A11D44FDC7010BA2E /* whisper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E83DDDFD5F621D4B5B268AC /* whisper.cpp */; };
+		6EABB5B214709424B2867EC3 /* ControlBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BF4A953A792D2E362279D9 /* ControlBar.swift */; };
+		6F40F5706E009842BB1C37A3 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71CB98CB4E83762F3F70D /* AppIcon.icns */; };
+		81F924DC46F2D535A5E22D70 /* ggml.c in Sources */ = {isa = PBXBuildFile; fileRef = F991D4A6D2785294A1CA32B4 /* ggml.c */; };
+		8760054EA3185765B93E73D6 /* SpeakerChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D31E2AFE7B3B47270C61CFD /* SpeakerChip.swift */; };
+		8CB3C3EC2A5FE48FF158681E /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40397CC8C5EE2A6616402237 /* ModelManager.swift */; };
+		8DBAA6F9F733A6944BDD07C2 /* BottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E37273F51B496074CC40F9A /* BottomBar.swift */; };
+		91691ABEB2C96E0928CA6965 /* VoiceActivityDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4924D1062607AE8F792143F8 /* VoiceActivityDetector.swift */; };
+		B6F18CBBA9594CE687D53070 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C18BAE2D9F9F0131D50DF67 /* ContentView.swift */; };
+		C175E0972AA5F51BC4E69E4C /* MarkdownExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7B7AEF634268AA5E37C7B7 /* MarkdownExporter.swift */; };
+		C312265EE202ED3C98E8D658 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDF505B90D454FA77F01ABAA /* Accelerate.framework */; };
+		CAB99EE210ABBEF66826F173 /* TranscriptEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01375DB3C76D7B79C9D8D973 /* TranscriptEntry.swift */; };
+		DAE3BE55495517A238F4B81D /* VoxNoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E1CD6E2CFA4415F330E64B /* VoxNoteApp.swift */; };
+		E62FA0A3C2F5723FEE380CD3 /* TranscriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A12A5627B6131B5C11503F /* TranscriptView.swift */; };
+		EE08047DA06A163BBB2DFB8F /* TranscriptSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD86CBE558BDC779E894104 /* TranscriptSession.swift */; };
+		FE45E067722BB84FD6401802 /* ggml-metal.m in Sources */ = {isa = PBXBuildFile; fileRef = D791039FD6E9326405D10E6A /* ggml-metal.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AD1E596A6BC42A934213041C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3CFAE55DBDE750333861545E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 28A4C7DB2E8C48E20590986F;
+			remoteInfo = whisper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		01375DB3C76D7B79C9D8D973 /* TranscriptEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEntry.swift; sourceTree = "<group>"; };
+		0BC71CB98CB4E83762F3F70D /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoxNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B2E8C1EADB384583FE5A2D0 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		1E37273F51B496074CC40F9A /* BottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomBar.swift; sourceTree = "<group>"; };
+		2D31E2AFE7B3B47270C61CFD /* SpeakerChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerChip.swift; sourceTree = "<group>"; };
+		33DBE5158BFB3A4C0936E0F1 /* UtteranceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtteranceRow.swift; sourceTree = "<group>"; };
+		40397CC8C5EE2A6616402237 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
+		4924D1062607AE8F792143F8 /* VoiceActivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceActivityDetector.swift; sourceTree = "<group>"; };
+		54A12A5627B6131B5C11503F /* TranscriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptView.swift; sourceTree = "<group>"; };
+		551A1221F22539731F6F5B34 /* TranscriptStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptStore.swift; sourceTree = "<group>"; };
+		5C18BAE2D9F9F0131D50DF67 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6730433159D71636A87413F5 /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
+		6B7B7AEF634268AA5E37C7B7 /* MarkdownExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownExporter.swift; sourceTree = "<group>"; };
+		72D63B96B2869A59A51BEB51 /* ggml-backend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "ggml-backend.cpp"; sourceTree = "<group>"; };
+		7E83DDDFD5F621D4B5B268AC /* whisper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = whisper.cpp; sourceTree = "<group>"; };
+		7F285FC83BED4373EA5EFDBB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		84B58F9867800F093BE97D3C /* LocalWhisperService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWhisperService.swift; sourceTree = "<group>"; };
+		881B5E559119D6FB8008B7F2 /* SpeakerChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerChangeDetector.swift; sourceTree = "<group>"; };
+		9741D3FF4194F2828FFD98FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A2BF4A953A792D2E362279D9 /* ControlBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlBar.swift; sourceTree = "<group>"; };
+		A6817E98D36A3549B1B88B62 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
+		A9E1CD6E2CFA4415F330E64B /* VoxNoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxNoteApp.swift; sourceTree = "<group>"; };
+		AE26D3D21789BE99E9394E32 /* ggml-alloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-alloc.c"; sourceTree = "<group>"; };
+		BE4A03AA562F2DD691036AB5 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		CDF505B90D454FA77F01ABAA /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		D25FAB0B485B573260EAC226 /* libwhisper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwhisper.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D791039FD6E9326405D10E6A /* ggml-metal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ggml-metal.m"; sourceTree = "<group>"; };
+		DE5E90937BD76A7C5C38DA4C /* ggml-quants.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-quants.c"; sourceTree = "<group>"; };
+		E00D78AF14A26FEBA05B7483 /* ggml-aarch64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ggml-aarch64.c"; sourceTree = "<group>"; };
+		F4F2ED59B8457BB50EE9D407 /* VoxNote.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoxNote.entitlements; sourceTree = "<group>"; };
+		F991D4A6D2785294A1CA32B4 /* ggml.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ggml.c; sourceTree = "<group>"; };
+		FBD86CBE558BDC779E894104 /* TranscriptSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptSession.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E743287DCB08B35D711D76CB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A85F671A15FCD7D8295AC24 /* libwhisper.a in Frameworks */,
+				C312265EE202ED3C98E8D658 /* Accelerate.framework in Frameworks */,
+				39995EFAEB4814FCA06C4CF7 /* Metal.framework in Frameworks */,
+				20EED368F1ABF7CB3A5A57B6 /* MetalKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2D89DBCD10D84C0E87ED6F7C /* src */ = {
+			isa = PBXGroup;
+			children = (
+				7E83DDDFD5F621D4B5B268AC /* whisper.cpp */,
+			);
+			name = src;
+			path = VoxNote/Vendor/whisper.cpp/src;
+			sourceTree = "<group>";
+		};
+		2FAD2F2DDF18490C7938CD6A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1E37273F51B496074CC40F9A /* BottomBar.swift */,
+				A2BF4A953A792D2E362279D9 /* ControlBar.swift */,
+				7F285FC83BED4373EA5EFDBB /* SettingsView.swift */,
+				2D31E2AFE7B3B47270C61CFD /* SpeakerChip.swift */,
+				54A12A5627B6131B5C11503F /* TranscriptView.swift */,
+				33DBE5158BFB3A4C0936E0F1 /* UtteranceRow.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		4B2CAF1F4C8AB492603B2229 /* VoxNote */ = {
+			isa = PBXGroup;
+			children = (
+				5C18BAE2D9F9F0131D50DF67 /* ContentView.swift */,
+				9741D3FF4194F2828FFD98FF /* Info.plist */,
+				F4F2ED59B8457BB50EE9D407 /* VoxNote.entitlements */,
+				A9E1CD6E2CFA4415F330E64B /* VoxNoteApp.swift */,
+				FEC5AC783042859EE734D448 /* Export */,
+				F6696983B61E8994FA2793AD /* Models */,
+				58678454738E50D145FD7B26 /* Resources */,
+				B2576DA1692546FBBB5AEBC7 /* Services */,
+				2FAD2F2DDF18490C7938CD6A /* Views */,
+			);
+			path = VoxNote;
+			sourceTree = "<group>";
+		};
+		58678454738E50D145FD7B26 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0BC71CB98CB4E83762F3F70D /* AppIcon.icns */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B2576DA1692546FBBB5AEBC7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6730433159D71636A87413F5 /* AudioCaptureService.swift */,
+				84B58F9867800F093BE97D3C /* LocalWhisperService.swift */,
+				40397CC8C5EE2A6616402237 /* ModelManager.swift */,
+				881B5E559119D6FB8008B7F2 /* SpeakerChangeDetector.swift */,
+				551A1221F22539731F6F5B34 /* TranscriptStore.swift */,
+				4924D1062607AE8F792143F8 /* VoiceActivityDetector.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B94B6DA2C615F3BAA9F0706B = {
+			isa = PBXGroup;
+			children = (
+				FC639D26A2C7F0BAC1905C0D /* src */,
+				2D89DBCD10D84C0E87ED6F7C /* src */,
+				4B2CAF1F4C8AB492603B2229 /* VoxNote */,
+				EC9C55F93B85763547F00908 /* Frameworks */,
+				EF38FE7D0C9D79B5E397673C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EC9C55F93B85763547F00908 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CDF505B90D454FA77F01ABAA /* Accelerate.framework */,
+				BE4A03AA562F2DD691036AB5 /* Metal.framework */,
+				1B2E8C1EADB384583FE5A2D0 /* MetalKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EF38FE7D0C9D79B5E397673C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D25FAB0B485B573260EAC226 /* libwhisper.a */,
+				0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F6696983B61E8994FA2793AD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A6817E98D36A3549B1B88B62 /* Speaker.swift */,
+				01375DB3C76D7B79C9D8D973 /* TranscriptEntry.swift */,
+				FBD86CBE558BDC779E894104 /* TranscriptSession.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FC639D26A2C7F0BAC1905C0D /* src */ = {
+			isa = PBXGroup;
+			children = (
+				E00D78AF14A26FEBA05B7483 /* ggml-aarch64.c */,
+				AE26D3D21789BE99E9394E32 /* ggml-alloc.c */,
+				72D63B96B2869A59A51BEB51 /* ggml-backend.cpp */,
+				D791039FD6E9326405D10E6A /* ggml-metal.m */,
+				DE5E90937BD76A7C5C38DA4C /* ggml-quants.c */,
+				F991D4A6D2785294A1CA32B4 /* ggml.c */,
+			);
+			name = src;
+			path = VoxNote/Vendor/whisper.cpp/ggml/src;
+			sourceTree = "<group>";
+		};
+		FEC5AC783042859EE734D448 /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				6B7B7AEF634268AA5E37C7B7 /* MarkdownExporter.swift */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		28A4C7DB2E8C48E20590986F /* whisper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3583E06741BA9F2AB049A265 /* Build configuration list for PBXNativeTarget "whisper" */;
+			buildPhases = (
+				F209E857956A8B65DE5E9FCC /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = whisper;
+			packageProductDependencies = (
+			);
+			productName = whisper;
+			productReference = D25FAB0B485B573260EAC226 /* libwhisper.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		40CFBA24FA209610B7CCD81D /* VoxNote */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "VoxNote" */;
+			buildPhases = (
+				CB3AEC3BAAF9A788429A1706 /* Sources */,
+				B133C20689D58DB3A3D8880B /* Resources */,
+				E743287DCB08B35D711D76CB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AD04C62C75A64CEBAD845CF2 /* PBXTargetDependency */,
+			);
+			name = VoxNote;
+			packageProductDependencies = (
+			);
+			productName = VoxNote;
+			productReference = 0EE7F8E2392A8B0F3DFAFDA2 /* VoxNote.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3CFAE55DBDE750333861545E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					40CFBA24FA209610B7CCD81D = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "VoxNote" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B94B6DA2C615F3BAA9F0706B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EF38FE7D0C9D79B5E397673C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				40CFBA24FA209610B7CCD81D /* VoxNote */,
+				28A4C7DB2E8C48E20590986F /* whisper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B133C20689D58DB3A3D8880B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F40F5706E009842BB1C37A3 /* AppIcon.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CB3AEC3BAAF9A788429A1706 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1260E17E1297427910D0F62B /* AudioCaptureService.swift in Sources */,
+				8DBAA6F9F733A6944BDD07C2 /* BottomBar.swift in Sources */,
+				B6F18CBBA9594CE687D53070 /* ContentView.swift in Sources */,
+				6EABB5B214709424B2867EC3 /* ControlBar.swift in Sources */,
+				399BDE8B19E9E4CB551E012F /* LocalWhisperService.swift in Sources */,
+				C175E0972AA5F51BC4E69E4C /* MarkdownExporter.swift in Sources */,
+				8CB3C3EC2A5FE48FF158681E /* ModelManager.swift in Sources */,
+				5A9438B7A021A792B630198E /* SettingsView.swift in Sources */,
+				5CB9FF9A6EB4724764CD2CD9 /* Speaker.swift in Sources */,
+				2BBFC4436CB70BB7CE068297 /* SpeakerChangeDetector.swift in Sources */,
+				8760054EA3185765B93E73D6 /* SpeakerChip.swift in Sources */,
+				CAB99EE210ABBEF66826F173 /* TranscriptEntry.swift in Sources */,
+				EE08047DA06A163BBB2DFB8F /* TranscriptSession.swift in Sources */,
+				397820DA71163991071F1650 /* TranscriptStore.swift in Sources */,
+				E62FA0A3C2F5723FEE380CD3 /* TranscriptView.swift in Sources */,
+				1CF5A4A64DDB5610E9211AC5 /* UtteranceRow.swift in Sources */,
+				91691ABEB2C96E0928CA6965 /* VoiceActivityDetector.swift in Sources */,
+				DAE3BE55495517A238F4B81D /* VoxNoteApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F209E857956A8B65DE5E9FCC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				38125CD703A95FC5E8F5756F /* ggml-aarch64.c in Sources */,
+				3B1DAC55697F6B02F8B633B7 /* ggml-alloc.c in Sources */,
+				1733C17AD37A3560A6759D42 /* ggml-backend.cpp in Sources */,
+				FE45E067722BB84FD6401802 /* ggml-metal.m in Sources */,
+				5440CE99633AC5BB1C8D3DA7 /* ggml-quants.c in Sources */,
+				81F924DC46F2D535A5E22D70 /* ggml.c in Sources */,
+				66CBD30A11D44FDC7010BA2E /* whisper.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AD04C62C75A64CEBAD845CF2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 28A4C7DB2E8C48E20590986F /* whisper */;
+			targetProxy = AD1E596A6BC42A934213041C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		12FAF8624FEF0CEE85AAD095 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/include",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/include",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/src",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/src",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_CFLAGS = "-O3 -DNDEBUG -DGGML_USE_ACCELERATE -DGGML_USE_METAL -Wno-shorten-64-to-32";
+				OTHER_CPLUSPLUSFLAGS = "-O3 -DNDEBUG -DGGML_USE_ACCELERATE -DGGML_USE_METAL -Wno-shorten-64-to-32 -std=c++17";
+				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.whisper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		14DFB39AA2689E46A2D12E46 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		5487AEAE8460506DCCEA8832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		AA02D28CE35067CA44FC1EF0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VoxNote/VoxNote.entitlements;
+				CODE_SIGN_IDENTITY = "VoxNote Developer";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/include",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/include",
+				);
+				INFOPLIST_FILE = VoxNote/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.app;
+				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = VoxNote/Vendor/whisper.cpp/BridgingHeader.h;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		AAE5F6172A6C7E0A2AD83ACC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VoxNote/VoxNote.entitlements;
+				CODE_SIGN_IDENTITY = "VoxNote Developer";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/include",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/include",
+				);
+				INFOPLIST_FILE = VoxNote/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.app;
+				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = VoxNote/Vendor/whisper.cpp/BridgingHeader.h;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		F9A380EB10CD1BF8977A7612 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/include",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/include",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/ggml/src",
+					"$(SRCROOT)/VoxNote/Vendor/whisper.cpp/src",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_CFLAGS = "-O3 -DNDEBUG -DGGML_USE_ACCELERATE -DGGML_USE_METAL -Wno-shorten-64-to-32";
+				OTHER_CPLUSPLUSFLAGS = "-O3 -DNDEBUG -DGGML_USE_ACCELERATE -DGGML_USE_METAL -Wno-shorten-64-to-32 -std=c++17";
+				PRODUCT_BUNDLE_IDENTIFIER = com.voxnote.whisper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3583E06741BA9F2AB049A265 /* Build configuration list for PBXNativeTarget "whisper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9A380EB10CD1BF8977A7612 /* Debug */,
+				12FAF8624FEF0CEE85AAD095 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EC17EE416011B10A86D6E1D2 /* Build configuration list for PBXNativeTarget "VoxNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAE5F6172A6C7E0A2AD83ACC /* Debug */,
+				AA02D28CE35067CA44FC1EF0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F15D41C3784FA41E38ADFBC1 /* Build configuration list for PBXProject "VoxNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				14DFB39AA2689E46A2D12E46 /* Debug */,
+				5487AEAE8460506DCCEA8832 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3CFAE55DBDE750333861545E /* Project object */;
+}
