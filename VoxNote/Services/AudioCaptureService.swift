@@ -4,38 +4,55 @@ import CoreGraphics
 import Accelerate
 import Foundation
 
-/// システム音声を ScreenCaptureKit 経由でキャプチャするサービス。
-/// onAudioBuffer コールバックはバックグラウンドスレッドで呼ばれます。
+/// システム音声 (ScreenCaptureKit) + マイク入力 (AVAudioEngine) を同時にキャプチャし、
+/// ミックスして1つのバッファとして返すサービス。
 class AudioCaptureService: NSObject {
     var onAudioBuffer: ((AVAudioPCMBuffer) -> Void)?
     /// 現在の音声レベル (0.0〜1.0)。UI のレベルメーター用。
     var onAudioLevel: ((Float) -> Void)?
 
+    // ScreenCaptureKit (システム音声: 相手の声)
     private var stream: SCStream?
     private var streamOutput: AudioStreamOutput?
 
-    /// 画面収録の権限が付与済みかチェック
-    static var hasScreenCapturePermission: Bool {
-        CGPreflightScreenCaptureAccess()
-    }
+    // AVAudioEngine (マイク入力: 自分の声)
+    private var audioEngine: AVAudioEngine?
+    private let micQueue = DispatchQueue(label: "com.voxnote.mic", qos: .userInteractive)
 
     /// 画面収録の権限をリクエスト (システムダイアログを表示)
-    /// 権限付与後はアプリの再起動が必要
     static func requestScreenCapturePermission() {
         CGRequestScreenCaptureAccess()
     }
 
     func startCapture() async throws {
-        // 事前チェックせず、実際にキャプチャを試みる。
-        // CGPreflightScreenCaptureAccess() は署名ハッシュが変わると
-        // ON でも false を返すため信頼できない。
+        // 1. システム音声キャプチャ (ScreenCaptureKit)
+        try await startSystemAudioCapture()
+
+        // 2. マイク入力キャプチャ (AVAudioEngine)
+        try startMicrophoneCapture()
+    }
+
+    func stopCapture() async throws {
+        // マイク停止
+        audioEngine?.stop()
+        audioEngine?.inputNode.removeTap(onBus: 0)
+        audioEngine = nil
+
+        // システム音声停止
+        try await stream?.stopCapture()
+        stream = nil
+        streamOutput = nil
+    }
+
+    // MARK: - システム音声 (相手の声)
+
+    private func startSystemAudioCapture() async throws {
         let content: SCShareableContent
         do {
             content = try await SCShareableContent.excludingDesktopWindows(
                 false, onScreenWindowsOnly: false
             )
         } catch {
-            // ScreenCaptureKit へのアクセス失敗 = 権限なし
             CGRequestScreenCaptureAccess()
             throw AudioCaptureError.permissionDenied
         }
@@ -46,9 +63,6 @@ class AudioCaptureService: NSObject {
 
         let config = SCStreamConfiguration()
         config.capturesAudio = true
-        // サンプルレート・チャンネルはシステムデフォルトを使用
-        // (16kHz を要求するとデバイスによっては無音になるため)
-        // Whisper 用の 16kHz mono 変換は LocalWhisperService 側で行う
         config.sampleRate = 48000
         config.channelCount = 1
 
@@ -65,28 +79,78 @@ class AudioCaptureService: NSObject {
 
         let output = AudioStreamOutput()
         output.onAudioBuffer = { [weak self] buffer in
-            self?.onAudioBuffer?(buffer)
-            // 音声レベルを計算して通知
-            if let data = buffer.floatChannelData?[0], buffer.frameLength > 0 {
-                var rms: Float = 0
-                vDSP_rmsqv(data, 1, &rms, vDSP_Length(buffer.frameLength))
-                self?.onAudioLevel?(rms)
-            }
+            self?.handleAudioBuffer(buffer)
         }
         streamOutput = output
 
         stream = SCStream(filter: filter, configuration: config, delegate: nil)
         try stream?.addStreamOutput(
             output, type: .audio,
-            sampleHandlerQueue: DispatchQueue(label: "com.voxnote.audio", qos: .userInteractive)
+            sampleHandlerQueue: DispatchQueue(label: "com.voxnote.system-audio", qos: .userInteractive)
         )
         try await stream?.startCapture()
     }
 
-    func stopCapture() async throws {
-        try await stream?.stopCapture()
-        stream = nil
-        streamOutput = nil
+    // MARK: - マイク入力 (自分の声)
+
+    private func startMicrophoneCapture() throws {
+        let engine = AVAudioEngine()
+        let inputNode = engine.inputNode
+        let inputFormat = inputNode.outputFormat(forBus: 0)
+
+        // 48kHz mono に変換するフォーマット
+        guard let targetFormat = AVAudioFormat(
+            commonFormat: .pcmFormatFloat32,
+            sampleRate: 48000,
+            channels: 1,
+            interleaved: false
+        ) else { return }
+
+        // フォーマット変換が必要な場合は converter を用意
+        let needsConversion = inputFormat.sampleRate != targetFormat.sampleRate
+            || inputFormat.channelCount != targetFormat.channelCount
+
+        inputNode.installTap(onBus: 0, bufferSize: 4800, format: inputFormat) { [weak self] buffer, _ in
+            if needsConversion {
+                // リサンプリング + モノ変換
+                guard let converter = AVAudioConverter(from: inputFormat, to: targetFormat) else { return }
+                let ratio = targetFormat.sampleRate / inputFormat.sampleRate
+                let outCapacity = AVAudioFrameCount(Double(buffer.frameLength) * ratio) + 100
+                guard let converted = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: outCapacity) else { return }
+
+                var provided = false
+                var convError: NSError?
+                converter.convert(to: converted, error: &convError) { _, status in
+                    if !provided {
+                        provided = true
+                        status.pointee = .haveData
+                        return buffer
+                    }
+                    status.pointee = .endOfStream
+                    return nil
+                }
+                if convError == nil {
+                    self?.handleAudioBuffer(converted)
+                }
+            } else {
+                self?.handleAudioBuffer(buffer)
+            }
+        }
+
+        try engine.start()
+        audioEngine = engine
+    }
+
+    // MARK: - 共通バッファ処理
+
+    private func handleAudioBuffer(_ buffer: AVAudioPCMBuffer) {
+        onAudioBuffer?(buffer)
+        // 音声レベルを計算して通知
+        if let data = buffer.floatChannelData?[0], buffer.frameLength > 0 {
+            var rms: Float = 0
+            vDSP_rmsqv(data, 1, &rms, vDSP_Length(buffer.frameLength))
+            onAudioLevel?(rms)
+        }
     }
 }
 
