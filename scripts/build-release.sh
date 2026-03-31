@@ -42,6 +42,10 @@ if command -v xcodegen &>/dev/null; then
     cd "${PROJECT_DIR}" && xcodegen generate --quiet
 fi
 
+# ── バージョン取得 ──
+VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+echo "📌 バージョン: ${VERSION}"
+
 # ── Release ビルド ──
 echo "📦 Release ビルド中..."
 xcodebuild \
@@ -52,6 +56,8 @@ xcodebuild \
     CODE_SIGN_IDENTITY="${SIGN_IDENTITY}" \
     ${SIGN_FLAGS} \
     ONLY_ACTIVE_ARCH=NO \
+    MARKETING_VERSION="${VERSION}" \
+    CURRENT_PROJECT_VERSION="${VERSION}" \
     build \
     2>&1 | grep -E "BUILD SUCCEEDED|BUILD FAILED|error:" || true
 

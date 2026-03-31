@@ -35,6 +35,9 @@ jobs:
 
       - name: Build Release
         run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # バージョン番号を分解 (1.4.1 → MARKETING_VERSION=1.4.1, BUILD=1)
+          BUILD_NUMBER=$(echo "$VERSION" | tr -dc '.' | wc -c | xargs expr 1 +)
           xcodebuild \
             -project VoxNote.xcodeproj \
             -scheme VoxNote \
@@ -42,6 +45,8 @@ jobs:
             -derivedDataPath build/DerivedData \
             CODE_SIGN_IDENTITY="-" \
             ONLY_ACTIVE_ARCH=NO \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$VERSION" \
             build
 
       - name: Package app

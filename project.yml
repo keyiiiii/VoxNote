@@ -70,8 +70,8 @@ targets:
         CFBundleDisplayName: VoxNote
         CFBundleName: VoxNote
         CFBundleIconFile: AppIcon
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         LSMinimumSystemVersion: "13.0"
         NSScreenCaptureUsageDescription: "MTG の音声を文字起こしするために画面収録を使用します"
         NSMicrophoneUsageDescription: "音声を録音するためにマイクを使用します"
