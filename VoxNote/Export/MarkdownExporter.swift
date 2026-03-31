@@ -22,7 +22,7 @@ struct MarkdownExporter {
 
     // MARK: - フォーマット変換
 
-    static func buildMarkdown(session: TranscriptSession) -> String {
+    static func buildMarkdown(session: TranscriptSession, summary: String? = nil) -> String {
         let headerFmt = DateFormatter()
         headerFmt.dateStyle = .medium
         headerFmt.timeStyle = .short
@@ -32,6 +32,16 @@ struct MarkdownExporter {
         timeFmt.dateFormat = "HH:mm"
 
         var lines = ["# MTG \(headerFmt.string(from: session.startDate))", ""]
+
+        // 要約があれば先頭に追加
+        if let summary = summary, !summary.isEmpty {
+            lines.append(summary)
+            lines.append("")
+            lines.append("---")
+            lines.append("")
+            lines.append("## 文字起こし")
+            lines.append("")
+        }
 
         for entry in session.entries where !entry.isPending && !entry.text.isEmpty {
             let name = session.speakers.first(where: { $0.id == entry.speakerId })?.displayName ?? "不明"

@@ -7,6 +7,8 @@ struct ContentView: View {
     @State private var debugInput = ""
     @State private var showDebugInput = false
 
+    @State private var showSummary = true
+
     var body: some View {
         VStack(spacing: 0) {
             // 上部コントロール
@@ -14,18 +16,27 @@ struct ContentView: View {
 
             Divider()
 
-            // メインエリア
-            Group {
-                if store.session.entries.isEmpty && !showDebugInput {
-                    EmptyStateView(
-                        modelManager: store.modelManager,
-                        showSettings: $showSettings
-                    )
-                } else {
-                    TranscriptView(store: store)
+            // メインエリア: 左 文字起こし | 右 要約
+            HSplitView {
+                // 左: 文字起こし
+                Group {
+                    if store.session.entries.isEmpty && !showDebugInput {
+                        EmptyStateView(
+                            modelManager: store.modelManager,
+                            showSettings: $showSettings
+                        )
+                    } else {
+                        TranscriptView(store: store)
+                    }
+                }
+                .frame(minWidth: 350, maxWidth: .infinity, maxHeight: .infinity)
+
+                // 右: AI 要約パネル
+                if showSummary {
+                    SummaryPanel(store: store, ollamaManager: store.ollamaManager)
+                        .frame(minWidth: 250, maxHeight: .infinity)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             Divider()
 
@@ -37,7 +48,7 @@ struct ContentView: View {
             // 下部バー
             BottomBar(store: store)
         }
-        .frame(minWidth: 620, minHeight: 450)
+        .frame(minWidth: 800, minHeight: 500)
         .sheet(isPresented: $showSettings) {
             SettingsView(modelManager: store.modelManager)
         }
@@ -77,8 +88,10 @@ struct ContentView: View {
             }
         }
         .task {
-            // 起動時にモデルを自動ダウンロード
+            // 起動時に Whisper モデルを自動ダウンロード
             await store.modelManager.downloadModelIfNeeded()
+            // Ollama のセットアップ (バックグラウンド)
+            await store.ollamaManager.ensureReady()
         }
     }
 }

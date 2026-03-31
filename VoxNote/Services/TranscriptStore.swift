@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import AppKit
+import Accelerate
 import Combine
 
 /// アプリ全体の状態管理。音声処理パイプラインのオーケストレーションを行う。
@@ -15,14 +16,20 @@ class TranscriptStore: ObservableObject {
     @Published var audioLevel: Float = 0
     /// 録音ステータスメッセージ
     @Published var statusMessage: String = ""
+    /// AI 要約テキスト
+    @Published var summary: String = ""
+    @Published var isSummarizing = false
+    @Published var autoSummarize = true
+
+    let ollamaManager = OllamaManager.shared
 
     private let audioCapture = AudioCaptureService()
     private let vad = VoiceActivityDetector()
     private let speakerDetector = SpeakerChangeDetector()
     private var whisperService: LocalWhisperService?
 
-    // 録音中に蓄積している現在セグメントのバッファ
-    private var currentChunkBuffers: [AVAudioPCMBuffer] = []
+    // 録音中に蓄積している現在セグメントのバッファ (ソース情報付き)
+    private var currentChunkBuffers: [TaggedAudioBuffer] = []
     // 現在処理中のエントリ ID
     private var pendingEntryId: UUID?
     // オーディオプロファイル UUID → セッション内話者 UUID
@@ -36,8 +43,11 @@ class TranscriptStore: ObservableObject {
     private let minChunkFrames: AVAudioFrameCount = 96_000
 
     // Whisper 推論の直列化キュー (whisper.cpp はスレッドセーフでない)
-    private var transcriptionQueue: [(buffers: [AVAudioPCMBuffer], entryId: UUID)] = []
+    private var transcriptionQueue: [(buffers: [TaggedAudioBuffer], entryId: UUID)] = []
     private var isTranscribing = false
+
+    private var lastSummaryEntryCount = 0
+    private var summaryTask: Task<Void, Never>?
 
     let modelManager = ModelManager.shared
 
@@ -71,12 +81,12 @@ class TranscriptStore: ObservableObject {
             Task { @MainActor in self?.recordingDuration += 1 }
         }
 
-        audioCapture.onAudioBuffer = { [weak self] buffer in
-            Task { @MainActor in self?.processAudioBuffer(buffer) }
+        audioCapture.onAudioBuffer = { [weak self] tagged in
+            Task { @MainActor in self?.processAudioBuffer(tagged) }
         }
 
         audioCapture.onAudioLevel = { [weak self] level in
-            Task { @MainActor in self?.audioLevel = min(level * 10, 1.0) } // 増幅して表示
+            Task { @MainActor in self?.audioLevel = min(level * 10, 1.0) }
         }
 
         statusMessage = "音声キャプチャを開始中…"
@@ -126,16 +136,25 @@ class TranscriptStore: ObservableObject {
 
     // MARK: - 音声処理
 
-    private func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
-        let event = vad.process(buffer: buffer)
+    private func processAudioBuffer(_ tagged: TaggedAudioBuffer) {
+        // システム音声で無音に近いバッファは無視（VAD を乱さないため）
+        if tagged.source == .system {
+            guard let data = tagged.buffer.floatChannelData?[0],
+                  tagged.buffer.frameLength > 0 else { return }
+            var rms: Float = 0
+            vDSP_rmsqv(data, 1, &rms, vDSP_Length(tagged.buffer.frameLength))
+            if rms < 0.001 { return }
+        }
+
+        let event = vad.process(buffer: tagged.buffer)
 
         switch event {
         case .speechStarted:
             // 短いチャンクがバッファに残っている場合は結合する
             if currentChunkBuffers.isEmpty {
-                currentChunkBuffers = [buffer]
+                currentChunkBuffers = [tagged]
             } else {
-                currentChunkBuffers.append(buffer)
+                currentChunkBuffers.append(tagged)
             }
             statusMessage = "音声を検出 — 文字起こし準備中…"
             // 仮エントリがなければ作成 (話者・テキストは後から設定)
@@ -147,10 +166,10 @@ class TranscriptStore: ObservableObject {
             }
 
         case .speaking:
-            currentChunkBuffers.append(buffer)
+            currentChunkBuffers.append(tagged)
 
             // 最大チャンクサイズ超過時に中間送信
-            let totalFrames = currentChunkBuffers.reduce(AVAudioFrameCount(0)) { $0 + $1.frameLength }
+            let totalFrames = currentChunkBuffers.reduce(AVAudioFrameCount(0)) { $0 + $1.buffer.frameLength }
             if totalFrames >= maxChunkFrames {
                 let toSend = currentChunkBuffers
                 currentChunkBuffers = []
@@ -168,7 +187,7 @@ class TranscriptStore: ObservableObject {
 
         case .speechEnded:
             // 最低フレーム数未満なら送信せずバッファに保持して次の発話と結合する
-            let totalFrames = currentChunkBuffers.reduce(AVAudioFrameCount(0)) { $0 + $1.frameLength }
+            let totalFrames = currentChunkBuffers.reduce(AVAudioFrameCount(0)) { $0 + $1.buffer.frameLength }
             if totalFrames < minChunkFrames {
                 // バッファを保持したまま、次の speechStarted で結合される
                 break
@@ -188,7 +207,7 @@ class TranscriptStore: ObservableObject {
         }
     }
 
-    private func enqueueTranscription(buffers: [AVAudioPCMBuffer], entryId: UUID) {
+    private func enqueueTranscription(buffers: [TaggedAudioBuffer], entryId: UUID) {
         transcriptionQueue.append((buffers: buffers, entryId: entryId))
         processTranscriptionQueue()
     }
@@ -200,13 +219,16 @@ class TranscriptStore: ObservableObject {
         Task {
             await self.transcribeSegment(buffers: next.buffers, entryId: next.entryId)
             self.isTranscribing = false
+            self.autoSummaryCheck()
             self.processTranscriptionQueue()
         }
     }
 
-    private func transcribeSegment(buffers: [AVAudioPCMBuffer], entryId: UUID) async {
-        // 1. 話者検出 (セグメント全体の特徴量から)
-        let profileId = speakerDetector.detectSpeaker(from: buffers)
+    private func transcribeSegment(buffers: [TaggedAudioBuffer], entryId: UUID) async {
+        // 1. 話者検出 (ソース情報 + 音声特徴量から)
+        let rawBuffers = buffers.map { $0.buffer }
+        let dominantSource = detectDominantSource(buffers)
+        let profileId = speakerDetector.detectSpeaker(from: rawBuffers, source: dominantSource)
         let speaker = getOrCreateSpeaker(profileId: profileId)
 
         // 2. エントリの話者を更新
@@ -216,7 +238,7 @@ class TranscriptStore: ObservableObject {
         do {
             guard let whisper = whisperService else { return }
             let text = try await Task.detached(priority: .userInitiated) {
-                try whisper.transcribe(buffers: buffers)
+                try whisper.transcribe(buffers: rawBuffers)
             }.value
             updateEntry(id: entryId, text: text.isEmpty ? "[無音]" : text)
         } catch LocalWhisperError.audioTooShort {
@@ -239,11 +261,6 @@ class TranscriptStore: ObservableObject {
         if session.speakers.isEmpty {
             session = TranscriptSession()
         }
-        let speaker = session.speakers.first ?? {
-            let s = Speaker(index: 0)
-            session.speakers.append(s)
-            return s
-        }()
 
         statusMessage = "音声ファイルを読み込み中…"
 
@@ -262,19 +279,23 @@ class TranscriptStore: ObservableObject {
 
         statusMessage = "音声: \(String(format: "%.1f", duration))秒, \(Int(format.sampleRate))Hz — Whisper 処理中…"
 
-        // pending エントリを作成
-        let entry = TranscriptEntry(speakerId: speaker.id, text: "", isPending: true)
-        session.entries.append(entry)
-
         do {
             let whisper = try LocalWhisperService(modelPath: modelPath)
 
             // ファイル全体を読み込み
             guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: totalFrames) else {
-                updateEntry(id: entry.id, text: "[バッファ作成失敗]")
+                lastError = "バッファ作成失敗"
                 return
             }
             try audioFile.read(into: buffer)
+
+            // 話者検出 (音声ファイルは .system 扱いで MFCC 比較)
+            let profileId = speakerDetector.detectSpeaker(from: [buffer], source: .system)
+            let speaker = getOrCreateSpeaker(profileId: profileId)
+
+            // pending エントリを作成
+            let entry = TranscriptEntry(speakerId: speaker.id, text: "", isPending: true)
+            session.entries.append(entry)
 
             // Whisper で文字起こし
             let result = try await Task.detached(priority: .userInitiated) {
@@ -288,7 +309,7 @@ class TranscriptStore: ObservableObject {
             }
             statusMessage = "完了"
         } catch {
-            updateEntry(id: entry.id, text: "[エラー: \(error.localizedDescription)]")
+            lastError = error.localizedDescription
             statusMessage = "エラー: \(error.localizedDescription)"
         }
     }
@@ -414,6 +435,53 @@ class TranscriptStore: ObservableObject {
         }
     }
 
+    // MARK: - AI 要約
+
+    /// 手動で要約を更新
+    func updateSummary() async {
+        guard !isSummarizing else { return }
+        let completedEntries = session.entries.filter { !$0.isPending && !$0.text.isEmpty }
+        guard !completedEntries.isEmpty else { return }
+
+        // Ollama が使えるか確認
+        if !(await ollamaManager.service.isAvailable()) {
+            await ollamaManager.ensureReady()
+            guard ollamaManager.status == .ready else { return }
+        }
+
+        isSummarizing = true
+        summary = ""
+        lastSummaryEntryCount = completedEntries.count
+
+        let transcript = MarkdownExporter.buildPlainText(session: session)
+
+        do {
+            _ = try await ollamaManager.service.summarize(transcript: transcript) { [weak self] token in
+                Task { @MainActor in
+                    self?.summary += token
+                }
+            }
+        } catch {
+            if summary.isEmpty {
+                summary = "[要約エラー: \(error.localizedDescription)]"
+            }
+        }
+
+        isSummarizing = false
+    }
+
+    /// 自動要約チェック（新しい発言が5件追加されたら実行）
+    private func autoSummaryCheck() {
+        guard autoSummarize, ollamaManager.status == .ready else { return }
+        let completedCount = session.entries.filter { !$0.isPending && !$0.text.isEmpty }.count
+        guard completedCount - lastSummaryEntryCount >= 5 else { return }
+
+        summaryTask?.cancel()
+        summaryTask = Task {
+            await updateSummary()
+        }
+    }
+
     // MARK: - セッション操作
 
     func updateEntryText(id: UUID, text: String) {
@@ -427,6 +495,26 @@ class TranscriptStore: ObservableObject {
 
     func speaker(for entry: TranscriptEntry) -> Speaker? {
         session.speakers.first { $0.id == entry.speakerId }
+    }
+
+    /// セグメント内で支配的な音声ソースを判定。
+    /// マイクに音声があれば（RMS > 閾値）無条件でマイク扱い。
+    /// 自分の声はマイク経由が確実なので、マイク優先で判定する。
+    private func detectDominantSource(_ buffers: [TaggedAudioBuffer]) -> AudioSource {
+        let micThreshold: Float = 0.001
+
+        // マイクバッファの最大 RMS を計算
+        var maxMicRMS: Float = 0
+        for tagged in buffers where tagged.source == .microphone {
+            guard let data = tagged.buffer.floatChannelData?[0],
+                  tagged.buffer.frameLength > 0 else { continue }
+            var rms: Float = 0
+            vDSP_rmsqv(data, 1, &rms, vDSP_Length(tagged.buffer.frameLength))
+            maxMicRMS = max(maxMicRMS, rms)
+        }
+
+        // マイクに音声があればマイク、なければシステム
+        return maxMicRMS > micThreshold ? .microphone : .system
     }
 
     // MARK: - プライベートヘルパー

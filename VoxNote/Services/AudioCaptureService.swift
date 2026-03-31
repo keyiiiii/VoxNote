@@ -7,7 +7,7 @@ import Foundation
 /// システム音声 (ScreenCaptureKit) + マイク入力 (AVAudioEngine) を同時にキャプチャし、
 /// ミックスして1つのバッファとして返すサービス。
 class AudioCaptureService: NSObject {
-    var onAudioBuffer: ((AVAudioPCMBuffer) -> Void)?
+    var onAudioBuffer: ((TaggedAudioBuffer) -> Void)?
     /// 現在の音声レベル (0.0〜1.0)。UI のレベルメーター用。
     var onAudioLevel: ((Float) -> Void)?
 
@@ -79,7 +79,7 @@ class AudioCaptureService: NSObject {
 
         let output = AudioStreamOutput()
         output.onAudioBuffer = { [weak self] buffer in
-            self?.handleAudioBuffer(buffer)
+            self?.handleAudioBuffer(buffer, source: .system)
         }
         streamOutput = output
 
@@ -130,10 +130,10 @@ class AudioCaptureService: NSObject {
                     return nil
                 }
                 if convError == nil {
-                    self?.handleAudioBuffer(converted)
+                    self?.handleAudioBuffer(converted, source: .microphone)
                 }
             } else {
-                self?.handleAudioBuffer(buffer)
+                self?.handleAudioBuffer(buffer, source: .microphone)
             }
         }
 
@@ -143,8 +143,8 @@ class AudioCaptureService: NSObject {
 
     // MARK: - 共通バッファ処理
 
-    private func handleAudioBuffer(_ buffer: AVAudioPCMBuffer) {
-        onAudioBuffer?(buffer)
+    private func handleAudioBuffer(_ buffer: AVAudioPCMBuffer, source: AudioSource) {
+        onAudioBuffer?(TaggedAudioBuffer(buffer: buffer, source: source))
         // 音声レベルを計算して通知
         if let data = buffer.floatChannelData?[0], buffer.frameLength > 0 {
             var rms: Float = 0
